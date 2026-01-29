@@ -11,7 +11,7 @@ document.getElementById('formAluno').addEventListener('submit', async (e) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nome, cpf, telefone })
       });
-  
+  //exemplo
       if (response.ok) {
         document.getElementById('mensagem').innerText = 'Aluno cadastrado com sucesso!';
         document.getElementById('formAluno').reset();
