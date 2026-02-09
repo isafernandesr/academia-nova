@@ -1,29 +1,15 @@
 var express = require('express');
 var router = express.Router();
-
-// DADOS
-let listaTreinos = [
-  { 
-    id: 1, 
-    nome: "Treino A", 
-    aquecimento: "Caminhada ou bicicleta\nMobilidade de ombros, quadril e joelhos",
-    exercicios: "Agachamento livre – 3x12\nSupino (máquina ou halter) – 3x10\nPuxada na frente (pulldown) – 3x10\nDesenvolvimento de ombros – 3x10\nRosca bíceps – 2x12\nTríceps na polia ou banco – 2x12\nPrancha abdominal – 3x20–30s",
-    descanso: "60–90s entre séries"
-  },
-  { 
-    id: 2, 
-    nome: "Treino B", 
-    aquecimento: "Bicicleta ou esteira\nAlongamentos dinâmicos",
-    exercicios: "Leg press ou agachamento – 3x12\nRemada baixa ou com halter – 3x10\nFlexão de braço (ou joelhos apoiados) – 3x8–10\nElevação lateral de ombros – 3x12\nAbdominal crunch – 3x15\nElevação de quadril (glúteos) – 3x12",
-    descanso: "60–90s entre séries"
-  }
-];
-
-let proximoId = 3;
+var db = require('../config/database');
 
 // LISTAR
 router.get('/', function(req, res) {
-  res.render('treinos/index', { treinos: listaTreinos });
+  const sql = `SELECT id_treino as id, nome, aquecimento, exercicios, descanso FROM treino`;
+  
+  db.all(sql, [], (err, rows) => {
+      if (err) return console.log(err);
+      res.render('treinos/index', { treinos: rows });
+  });
 });
 
 // CRIAR
@@ -33,50 +19,53 @@ router.get('/criar', function(req, res) {
 
 // SALVAR
 router.post('/criar', function(req, res) {
-  listaTreinos.push({
-    id: proximoId++,
-    nome: req.body.nome,
-    aquecimento: req.body.aquecimento,
-    exercicios: req.body.exercicios,
-    descanso: req.body.descanso
+  const sql = `INSERT INTO treino (nome, aquecimento, exercicios, descanso) VALUES (?, ?, ?, ?)`;
+  const params = [req.body.nome, req.body.aquecimento, req.body.exercicios, req.body.descanso];
+
+  db.run(sql, params, function(err) {
+      if (err) return console.log(err.message);
+      res.redirect('/treinos');
   });
-  res.redirect('/treinos');
 });
 
 // EDITAR
 router.get('/editar/:id', function(req, res) {
-  const id = parseInt(req.params.id);
-  const treino = listaTreinos.find(t => t.id === id);
-  if (treino) res.render('treinos/form', { title: 'Editar Treino', treino: treino });
-  else res.redirect('/treinos');
+  const id = req.params.id;
+  const sql = `SELECT id_treino as id, nome, aquecimento, exercicios, descanso FROM treino WHERE id_treino = ?`;
+
+  db.get(sql, [id], (err, treino) => {
+      if (!treino) return res.redirect('/treinos');
+      res.render('treinos/form', { title: 'Editar Treino', treino: treino });
+  });
 });
 
 // ATUALIZAR
 router.post('/editar/:id', function(req, res) {
-  const id = parseInt(req.params.id);
-  const index = listaTreinos.findIndex(t => t.id === id);
-  if (index !== -1) {
-    listaTreinos[index].nome = req.body.nome;
-    listaTreinos[index].aquecimento = req.body.aquecimento;
-    listaTreinos[index].exercicios = req.body.exercicios;
-    listaTreinos[index].descanso = req.body.descanso;
-  }
-  res.redirect('/treinos');
+  const id = req.params.id;
+  const sql = `UPDATE treino SET nome = ?, aquecimento = ?, exercicios = ?, descanso = ? WHERE id_treino = ?`;
+  const params = [req.body.nome, req.body.aquecimento, req.body.exercicios, req.body.descanso, id];
+
+  db.run(sql, params, function(err) {
+      if (err) return console.log(err.message);
+      res.redirect('/treinos');
+  });
 });
 
 // DELETAR
 router.get('/deletar/:id', function(req, res) {
-  const id = parseInt(req.params.id);
-  const index = listaTreinos.findIndex(t => t.id === id);
-  
-  if (index !== -1) {
-    listaTreinos.splice(index, 1);
-  }
-  
-  res.redirect('/treinos');
-});
+  const id = req.params.id;
 
-module.exports = {
-    router: router,
-    listaTreinos: listaTreinos
-};
+  db.serialize(() => {
+      db.run(`UPDATE aluno SET id_treino = NULL WHERE id_treino = ?`, [id], (err) => {
+          if (err) console.error("Erro ao desvincular alunos:", err.message);
+      });
+
+      db.run(`DELETE FROM treino WHERE id_treino = ?`, [id], (err) => {
+          if (err) {
+              console.error("Erro ao deletar treino:", err.message);
+          }
+          res.redirect('/treinos');
+      });
+  });
+});
+module.exports = { router };
