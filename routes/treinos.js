@@ -56,13 +56,10 @@ router.post('/editar/:id', function(req, res) {
   const id = parseInt(req.params.id);
   const index = listaTreinos.findIndex(t => t.id === id);
   if (index !== -1) {
-    listaTreinos[index] = { 
-        id, 
-        nome: req.body.nome,
-        aquecimento: req.body.aquecimento,
-        exercicios: req.body.exercicios,
-        descanso: req.body.descanso
-    };
+    listaTreinos[index].nome = req.body.nome;
+    listaTreinos[index].aquecimento = req.body.aquecimento;
+    listaTreinos[index].exercicios = req.body.exercicios;
+    listaTreinos[index].descanso = req.body.descanso;
   }
   res.redirect('/treinos');
 });
@@ -70,8 +67,16 @@ router.post('/editar/:id', function(req, res) {
 // DELETAR
 router.get('/deletar/:id', function(req, res) {
   const id = parseInt(req.params.id);
-  listaTreinos = listaTreinos.filter(t => t.id !== id);
+  const index = listaTreinos.findIndex(t => t.id === id);
+  
+  if (index !== -1) {
+    listaTreinos.splice(index, 1);
+  }
+  
   res.redirect('/treinos');
 });
 
-module.exports = router;
+module.exports = {
+    router: router,
+    listaTreinos: listaTreinos
+};

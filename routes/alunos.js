@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
+var { listaTreinos } = require('./treinos');
+
 // DADOS
 let listaAlunos = [
   { id: 1, nome: "Maria Luisa", idade: 18, aniversario: "24/05/2007", gosta: "escutar músicas", plano: "alcançar as alturas, viajar e ser feliz" },
@@ -42,27 +44,11 @@ let proximoId = 33;
 // VALIDAÇÃO
 function validarDados(body) {
     const erros = [];
-
-    if (!body.nome || body.nome.trim().length < 3) {
-        erros.push("O nome deve ter pelo menos 3 caracteres.");
-    }
-
-    if (!body.idade || isNaN(body.idade) || parseInt(body.idade) <= 0) {
-        erros.push("A idade deve ser um número válido.");
-    }
-
-    const dataRegex = /^\d{2}\/\d{2}\/\d{4}$/;
-    if (!body.aniversario || !dataRegex.test(body.aniversario)) {
-        erros.push("A data de aniversário deve estar no formato DD/MM/AAAA (Ex: 24/05/2007).");
-    }
-
-    if (!body.gosta || body.gosta.trim().length < 3) {
-        erros.push("O campo 'Gosta' deve ter no mínimo 3 caracteres.");
-    }
-    if (!body.plano || body.plano.trim().length < 3) {
-        erros.push("O campo 'Plano' deve ter no mínimo 3 caracteres.");
-    }
-
+    if (!body.nome || body.nome.trim().length < 3) erros.push("O nome deve ter pelo menos 3 caracteres.");
+    if (!body.idade || isNaN(body.idade) || parseInt(body.idade) <= 0) erros.push("A idade deve ser um número válido.");
+    
+    if (!body.aniversario) erros.push("A data de aniversário é obrigatória.");
+    
     return erros;
 }
 
@@ -73,18 +59,25 @@ router.get('/', function(req, res) {
 
 // CRIAR
 router.get('/criar', function(req, res) {
-  res.render('alunos/form', { title: 'Novo Aluno', aluno: null });
+  res.render('alunos/form', { 
+      title: 'Novo Aluno', 
+      aluno: null, 
+      erros: [],
+      treinos: listaTreinos
+  });
 });
 
-// SALVAR NOVO
+// SALVAR
 router.post('/criar', function(req, res) {
   const erros = validarDados(req.body);
 
+  // Se der erro na validação:
   if (erros.length > 0) {
     return res.render('alunos/form', { 
         title: 'Novo Aluno', 
         aluno: req.body,
-        erros: erros 
+        erros: erros,
+        treinos: listaTreinos
     });
   }
 
@@ -94,38 +87,52 @@ router.post('/criar', function(req, res) {
     idade: req.body.idade,
     aniversario: req.body.aniversario,
     gosta: req.body.gosta,
-    plano: req.body.plano
+    sonho: req.body.sonho,
+    treino_id: parseInt(req.body.treino_id) || null
   });
+  
   res.redirect('/alunos');
 });
 
-// EDITAR
+// EDITAR 
 router.get('/editar/:id', function(req, res) {
   const id = parseInt(req.params.id);
   const aluno = listaAlunos.find(a => a.id === id);
-  if (aluno) res.render('alunos/form', { title: 'Editar Aluno', aluno: aluno });
-  else res.redirect('/alunos');
+  
+  if (aluno) {
+      res.render('alunos/form', { 
+          title: 'Editar Aluno', 
+          aluno: aluno, 
+          erros: [], 
+          treinos: listaTreinos
+      });
+  } else {
+      res.redirect('/alunos');
+  }
 });
 
 // ATUALIZAR
 router.post('/editar/:id', function(req, res) {
   const id = parseInt(req.params.id);
   const index = listaAlunos.findIndex(a => a.id === id);
-
   const erros = validarDados(req.body);
 
   if (erros.length > 0) {
       const dadosComId = { id: id, ...req.body }; 
-      
       return res.render('alunos/form', { 
           title: 'Editar Aluno', 
           aluno: dadosComId, 
-          erros: erros 
+          erros: erros,
+          treinos: listaTreinos 
       });
   }
 
   if (index !== -1) {
-    listaAlunos[index] = { id, ...req.body };
+    listaAlunos[index] = { 
+        id, 
+        ...req.body,
+        treino_id: parseInt(req.body.treino_id) || null
+    };
   }
   res.redirect('/alunos');
 });

@@ -11,7 +11,7 @@
       body { 
           font-family: 'Poppins', sans-serif;
           background-color: #f0f4f8; 
-          background-image: url('/images/1000209218.png'); /* Sua imagem de fundo */
+          background-image: url('/images/1000209218.png');
           background-size: cover;
           background-position: center;
           min-height: 100vh;
@@ -22,7 +22,7 @@
       }
 
       .card-custom { 
-          background: rgba(255, 255, 255, 0.95); /* Efeito vidro */
+          background: rgba(255, 255, 255, 0.95);
           border-radius: 20px;
           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
           backdrop-filter: blur(10px);
@@ -32,64 +32,32 @@
           padding: 30px;
       }
 
-      h2 {
-          color: #37499b;
-          font-weight: 600;
-          text-align: center;
-          margin-bottom: 25px;
+      h2 { color: #37499b; font-weight: 600; text-align: center; margin-bottom: 25px; }
+      .form-label { font-weight: 600; color: #555; }
+      
+      .form-control, .form-select { 
+          border-radius: 10px; border: 1px solid #ccc; padding: 10px; 
+      }
+      
+      .form-control:focus, .form-select:focus { 
+          border-color: #6fa6e9; box-shadow: 0 0 0 0.2rem rgba(111, 166, 233, 0.25); 
       }
 
-      .form-label {
-          font-weight: 600;
-          color: #555;
-      }
-
-      .form-control {
-          border-radius: 10px;
-          border: 1px solid #ccc;
-          padding: 10px;
-      }
-
-      .form-control:focus {
-          border-color: #6fa6e9;
-          box-shadow: 0 0 0 0.2rem rgba(111, 166, 233, 0.25);
-      }
-
-      /* Botão estilizado igual ao seu index */
       .btn-tech {
           background: linear-gradient(135deg, #5c91c4, #6fa6e9);
-          border: none;
-          color: white;
-          font-weight: bold;
-          padding: 12px;
-          border-radius: 10px;
-          transition: transform 0.2s, box-shadow 0.2s;
-          width: 100%;
+          border: none; color: white; font-weight: bold; padding: 12px;
+          border-radius: 10px; transition: transform 0.2s, box-shadow 0.2s; width: 100%;
       }
-
       .btn-tech:hover {
           background: linear-gradient(135deg, #6ba4eb, #00c6ff);
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(100, 165, 245, 0.4);
-          color: white;
+          transform: translateY(-2px); box-shadow: 0 4px 12px rgba(100, 165, 245, 0.4); color: white;
       }
 
       .btn-voltar {
-          background-color: #6c757d;
-          color: white;
-          border-radius: 10px;
-          width: 100%;
-          display: block;
-          text-align: center;
-          padding: 12px;
-          text-decoration: none;
-          font-weight: bold;
-          border: none;
+          background-color: #6c757d; color: white; border-radius: 10px; width: 100%;
+          display: block; text-align: center; padding: 12px; text-decoration: none; font-weight: bold; border: none;
       }
-      .btn-voltar:hover {
-          background-color: #5a6268;
-          color: white;
-      }
+      .btn-voltar:hover { background-color: #5a6268; color: white; }
   </style>
 </head>
 <body>
@@ -100,14 +68,10 @@
     <% if (typeof erros !== 'undefined' && erros.length > 0) { %>
         <div class="alert alert-danger" role="alert" style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #f5c6cb;">
             <ul style="margin: 0; padding-left: 20px;">
-                <% erros.forEach(function(erro) { %>
-                    <li><%= erro %></li>
-                <% }); %>
+                <% erros.forEach(function(erro) { %> <li><%= erro %></li> <% }); %>
             </ul>
         </div>
       <% } %>
-      
-
       
       <form action="<%= aluno ? '/alunos/editar/'+aluno.id : '/alunos/criar' %>" method="POST">
         
@@ -128,13 +92,29 @@
         </div>
 
         <div class="mb-3">
+            <label class="form-label">Vincular Treino</label>
+            <select name="treino_id" class="form-select">
+                <option value="">Selecione um treino...</option>
+                <% if(typeof treinos !== 'undefined') { %>
+                    <% treinos.forEach(function(treino) { %>
+                        <option value="<%= treino.id %>" 
+                            <%= (aluno && aluno.treino_id == treino.id) ? 'selected' : '' %>>
+                            <%= treino.nome %>
+                        </option>
+                    <% }); %>
+                <% } %>
+            </select>
+            <div class="form-text">Escolha a ficha de treino atual do aluno.</div>
+        </div>
+
+        <div class="mb-3">
           <label class="form-label">Gosta de...</label>
           <textarea name="gosta" class="form-control" rows="2" placeholder="Ex: Jogar vôlei e ler"><%= aluno ? aluno.gosta : '' %></textarea>
         </div>
 
         <div class="mb-3">
-          <label class="form-label">Plano</label>
-          <textarea name="plano" class="form-control" rows="2" placeholder="Ex: Viajar o mundo"><%= aluno ? aluno.plano : '' %></textarea>
+          <label class="form-label">Sonho</label>
+          <textarea name="sonho" class="form-control" rows="2" placeholder="Ex: Viajar o mundo"><%= aluno ? (aluno.sonho || aluno.plano) : '' %></textarea>
         </div>
 
         <div class="row mt-4">
