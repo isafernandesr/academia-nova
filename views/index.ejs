@@ -1,11 +1,188 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-  </body>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title><%= title %></title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #82a4c7, #37499b);
+      color: #fff;
+      background-attachment: fixed;
+      background-size: cover;
+      min-height: 100vh;
+    }
+
+    .barra {
+      background-color: rgba(24, 48, 114, 0.95);
+      padding: 20px;
+      text-align: center;
+      font-size: 28px;
+      font-family: 'Elephant', serif; /* Fallback para serif se Elephant n/a */
+      letter-spacing: 2px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    nav ul {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      list-style: none;
+      padding: 20px;
+      background-color: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 18px;
+      position: relative;
+    }
+
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0%;
+      height: 2px;
+      background-color: yellow;
+      transition: width 0.3s ease-in-out;
+    }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    .destaque {
+      text-align: center;
+      margin: 60px 20px 30px;
+      font-size: 24px;
+      font-weight: 600;
+      min-height: 30px;
+    }
+
+    .cards-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      padding: 40px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 20px;
+      padding: 25px;
+      text-align: center;
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(12px);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 12px 30px rgba(255, 255, 255, 0.1);
+    }
+
+    .card h3 {
+      margin-bottom: 10px;
+      font-size: 22px;
+    }
+
+    .card p {
+      font-size: 15px;
+      color: #ddd;
+    }
+
+    @keyframes cursor-blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    #frase::after {
+      content: '|';
+      animation: cursor-blink 0.8s infinite;
+      margin-left: 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="barra"><%= title %> 💪</div>
+
+  <nav>
+    <ul>
+      <li><a href="/alunos">Alunos</a></li>
+      <li><a href="/loja">Loja online</a></li>
+      <li><a href="/professores">Professores</a></li>
+      <li><a href="/treinos">Treinos</a></li>
+    </ul>
+  </nav>
+
+  <div class="destaque"><span id="frase"></span></div>
+
+  <div class="cards-container">
+    <div class="card">
+      <h3>Contatos</h3>
+      <p> (84) 94002-8922 </p>
+      <p> @infofit</p>
+    </div>
+    <div class="card">
+      <h3>Avisos 🖊️</h3>
+      <p>Mensalidade: R$200</p>
+    </div>
+    <div class="card">
+      <h3>Aniversariantes do mês 🎈</h3>
+      <p>...</p>
+    </div>
+  </div>
+
+  <script>
+    const frases = [
+      "Bem-vindo ao nosso site!",
+      "A melhor de Parnamirim!",
+    ];
+    let i = 0;
+    let j = 0;
+    let apagando = false;
+    let texto = "";
+
+    function digitar() {
+      const el = document.getElementById("frase");
+
+      if (!apagando && j < frases[i].length) {
+        texto += frases[i][j++];
+        el.textContent = texto;
+        setTimeout(digitar, 70);
+      } else if (apagando && j > 0) {
+        texto = texto.slice(0, --j);
+        el.textContent = texto;
+        setTimeout(digitar, 40);
+      } else {
+        apagando = !apagando;
+        if (!apagando) i = (i + 1) % frases.length;
+        setTimeout(digitar, 1200);
+      }
+    }
+
+    digitar();
+  </script>
+</body>
 </html>

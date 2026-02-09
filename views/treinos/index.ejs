@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treinos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .card { transition: all 0.2s ease; }
+        .card:hover {
+            transform: scale(1.02);
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 30px rgba(156, 170, 233, 0.6);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen pb-10">
+
+    <a href="/" class="absolute top-4 left-4 text-3xl font-bold text-black no-underline hover:text-gray-600 transition">&#x2190;</a>
+
+    <div class="py-8 flex flex-col items-center">
+        <p class="text-3xl font-bold text-center text-black drop-shadow-md mb-6">TREINOS</p>
+        
+        <a href="/treinos/criar" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg transition transform hover:-translate-y-1">
+            + Novo Treino
+        </a>
+    </div>
+
+    <div class="flex flex-wrap justify-center gap-8 px-4">
+
+        <% if(treinos.length === 0) { %>
+            <div class="bg-white p-6 rounded-lg shadow text-center">Nenhum treino cadastrado.</div>
+        <% } %>
+
+        <% treinos.forEach(function(treino) { %>
+        <div class="card w-full sm:w-[80%] md:w-[45%] lg:w-[30%] bg-blue-200/50 rounded-lg shadow-md p-6 relative group border border-blue-100">
+            
+            <h2 class="text-2xl font-bold mb-4 text-blue-900 border-b border-blue-300 pb-2"><%= treino.nome %></h2>
+
+            <h3 class="font-semibold mt-2 text-blue-800 uppercase text-sm">Aquecimento</h3>
+            <ul class="list-disc list-inside text-gray-800 mb-3 text-sm">
+                <% 
+                   // Divide o texto por quebra de linha e cria os itens da lista
+                   if(treino.aquecimento) {
+                       treino.aquecimento.split('\n').forEach(function(linha){ 
+                           if(linha.trim()) { %>
+                               <li><%= linha %></li>
+                           <% } 
+                       });
+                   }
+                %>
+            </ul>
+
+            <h3 class="font-semibold mt-3 text-blue-800 uppercase text-sm">Exercícios</h3>
+            <ul class="list-disc list-inside text-gray-800 mb-3 text-sm">
+                <% 
+                   if(treino.exercicios) {
+                       treino.exercicios.split('\n').forEach(function(linha){ 
+                           if(linha.trim()) { %>
+                               <li><%= linha %></li>
+                           <% } 
+                       });
+                   }
+                %>
+            </ul>
+
+            <div class="bg-white/50 p-2 rounded mt-4">
+                <span class="font-bold text-blue-900 text-sm">Descanso:</span>
+                <span class="text-gray-800 text-sm"><%= treino.descanso %></span>
+            </div>
+
+            <div class="flex justify-end gap-2 mt-4 pt-4 border-t border-blue-200/50">
+                <a href="/treinos/editar/<%= treino.id %>" class="bg-yellow-400 hover:bg-yellow-500 text-black px-3 py-1 rounded text-sm font-bold shadow transition">Editar</a>
+                <a href="/treinos/deletar/<%= treino.id %>" onclick="return confirm('Excluir <%= treino.nome %>?')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm font-bold shadow transition">Excluir</a>
+            </div>
+
+        </div>
+        <% }); %>
+
+    </div>
+
+</body>
+</html>
